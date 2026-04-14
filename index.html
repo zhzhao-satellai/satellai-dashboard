@@ -7,458 +7,279 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0f1117;
-      --card: #1a1d29;
-      --border: #2a2d3a;
-      --text: #e4e6eb;
-      --text2: #8b8fa3;
-      --accent-stl: #4f8cff;
-      --accent-go: #34d399;
-      --accent-cb: #f59e0b;
-      --green: #22c55e;
-      --red: #ef4444;
+      --bg: #0f1117; --card: #1a1d29; --border: #2a2d3a;
+      --text: #e4e6eb; --text2: #8b8fa3; --text3: #5a5e72;
+      --stl: #4f8cff; --go: #34d399; --cb: #f59e0b;
+      --green: #22c55e; --red: #ef4444; --purple: #a78bfa;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 24px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-    }
-    .header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-    .header h1 span { color: var(--accent-stl); }
-    .meta {
-      font-size: 13px;
-      color: var(--text2);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .status-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      display: inline-block;
-      animation: pulse 2s infinite;
-    }
-    .status-dot.ok { background: var(--green); }
-    .status-dot.err { background: var(--red); }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
 
-    /* KPI Cards */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .kpi-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-    }
-    .kpi-card .app-name {
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .kpi-card .app-name .dot {
-      width: 10px; height: 10px; border-radius: 3px;
-    }
-    .kpi-card.stl .dot { background: var(--accent-stl); }
-    .kpi-card.go .dot { background: var(--accent-go); }
-    .kpi-card.cb .dot { background: var(--accent-cb); }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+    .header h1 span { color: var(--stl); }
+    .meta { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 10px; }
+    .dot-live { width: 7px; height: 7px; border-radius: 50%; display: inline-block; background: var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .kpi-item {
-      background: rgba(255,255,255,0.03);
-      border-radius: 8px;
-      padding: 12px;
-    }
-    .kpi-item .label {
-      font-size: 11px;
-      color: var(--text2);
-      margin-bottom: 4px;
-    }
-    .kpi-item .value {
-      font-size: 24px;
-      font-weight: 700;
-      line-height: 1;
-    }
-    .kpi-item .change {
-      font-size: 11px;
-      margin-top: 4px;
-    }
+    /* Section */
+    .section { margin-bottom: 28px; }
+    .section-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .section-title .badge { background: var(--cb); color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+
+    /* KPI Row */
+    .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .kpi-card .app-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .kpi-card .app-label .dot { width: 8px; height: 8px; border-radius: 3px; }
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .kpi-item { background: rgba(255,255,255,0.03); border-radius: 6px; padding: 10px; }
+    .kpi-item .label { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+    .kpi-item .value { font-size: 20px; font-weight: 700; line-height: 1.1; }
+    .kpi-item .change { font-size: 10px; margin-top: 2px; }
     .kpi-item .change.up { color: var(--green); }
     .kpi-item .change.down { color: var(--red); }
-    .kpi-item.wide { grid-column: span 2; }
 
-    /* Charts Row */
-    .charts-row {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .chart-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-    }
-    .chart-card h3 {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-    .chart-container {
-      position: relative;
-      height: 260px;
-    }
+    /* Charts */
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .chart-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+    .chart-box { position: relative; height: 220px; }
 
-    /* Top Events */
-    .events-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .events-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-    }
-    .events-card h3 {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .events-card h3 .dot {
-      width: 8px; height: 8px; border-radius: 3px;
-    }
-    .event-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 13px;
-    }
-    .event-row:last-child { border-bottom: none; }
-    .event-row .name {
-      color: var(--text2);
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 12px;
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .event-row .users {
-      color: var(--text);
-      font-weight: 600;
-      margin-left: 12px;
-      min-width: 50px;
-      text-align: right;
-    }
-    .event-bar {
-      height: 4px;
-      border-radius: 2px;
-      margin-top: 2px;
-      opacity: 0.4;
-    }
-    .stl-bar { background: var(--accent-stl); }
-    .go-bar { background: var(--accent-go); }
-    .cb-bar { background: var(--accent-cb); }
+    /* Metrics Grid */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+    .metric-tile { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .metric-tile .m-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; font-family: 'SF Mono','Fira Code',monospace; }
+    .metric-tile .m-value { font-size: 22px; font-weight: 700; }
+    .metric-tile .m-sub { font-size: 10px; color: var(--text2); margin-top: 2px; }
+    .metric-tile.stl { border-left: 3px solid var(--stl); }
+    .metric-tile.go { border-left: 3px solid var(--go); }
+    .metric-tile.cb { border-left: 3px solid var(--cb); }
 
-    /* Error state */
-    .error-msg {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      border-radius: 8px;
-      padding: 16px;
-      color: #fca5a5;
-      font-size: 14px;
-    }
+    /* Funnel */
+    .funnel { display: flex; align-items: center; gap: 4px; margin-bottom: 12px; }
+    .funnel-step { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; flex: 1; }
+    .funnel-step .f-label { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+    .funnel-step .f-value { font-size: 18px; font-weight: 700; }
+    .funnel-arrow { color: var(--text3); font-size: 16px; }
+    .funnel-pct { font-size: 10px; color: var(--cb); margin-top: 2px; }
 
     /* Responsive */
-    @media (max-width: 1200px) {
-      .kpi-row { grid-template-columns: 1fr; }
-      .charts-row { grid-template-columns: 1fr; }
-      .events-row { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 1000px) { .kpi-row { grid-template-columns: 1fr; } .chart-row { grid-template-columns: 1fr; } }
 
-    /* Refresh button */
-    .refresh-btn {
-      background: rgba(79,140,255,0.15);
-      color: var(--accent-stl);
-      border: 1px solid rgba(79,140,255,0.3);
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .refresh-btn:hover {
-      background: rgba(79,140,255,0.25);
-    }
+    .refresh-btn { background: rgba(79,140,255,0.12); color: var(--stl); border: 1px solid rgba(79,140,255,0.25); border-radius: 6px; padding: 4px 12px; font-size: 11px; cursor: pointer; }
+    .refresh-btn:hover { background: rgba(79,140,255,0.22); }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <h1><span>SatellAI</span> Analytics Dashboard</h1>
+  <h1><span>SatellAI</span> Analytics</h1>
   <div class="meta">
-    <span class="status-dot ok" id="statusDot"></span>
+    <span class="dot-live" id="statusDot"></span>
     <span id="updateTime">Loading...</span>
-    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    <button class="refresh-btn" onclick="loadData()">↻</button>
   </div>
 </div>
 
-<!-- KPI Cards -->
-<div class="kpi-row" id="kpiRow"></div>
-
-<!-- Charts -->
-<div class="charts-row">
-  <div class="chart-card">
-    <h3>DAU Trend (7 Days)</h3>
-    <div class="chart-container"><canvas id="trendChart"></canvas></div>
-  </div>
-  <div class="chart-card">
-    <h3>Monthly Overview</h3>
-    <div class="chart-container"><canvas id="monthChart"></canvas></div>
-  </div>
-</div>
-
-<!-- Top Events -->
-<div class="events-row" id="eventsRow"></div>
+<div id="app"></div>
 
 <script>
-// 内嵌看板数据（由 build-ghp.cjs 自动生成）
-const __DASHBOARD_DATA__ = {"updatedAt":"2026-04-14T11:20:29.706Z","dateLabel":"20260413","apps":{"app.stl":{"name":"app.stl","fetchedAt":"2026-04-14T11:20:10.594Z","today":{"dau":911,"devices":1071,"events":2347},"yesterday":{"dau":871,"devices":1027,"events":2322},"month":{"dau":2493,"devices":3839,"events":2393298},"weekTrend":[{"date":"20260408","dau":895,"events":2315},{"date":"20260409","dau":880,"events":2405},{"date":"20260410","dau":878,"events":2356},{"date":"20260411","dau":854,"events":2332},{"date":"20260412","dau":871,"events":2322},{"date":"20260413","dau":911,"events":2347}],"topEvents":[{"name":"user_engagement","users":918,"count":12341},{"name":"screen_view","users":918,"count":16748},{"name":"session_start","users":911,"count":2347},{"name":"app_entry","users":901,"count":7323},{"name":"page_stay","users":898,"count":21305},{"name":"map_snapshot","users":855,"count":2350},{"name":"fu_error","users":607,"count":2243},{"name":"notification_receive","users":344,"count":3576},{"name":"notification_dismiss","users":297,"count":2592},{"name":"bottom_command","users":294,"count":2484},{"name":"fence_secured","users":266,"count":1644},{"name":"notification_foreground","users":233,"count":1352},{"name":"device_network_unline","users":194,"count":5829},{"name":"remote_control","users":186,"count":450},{"name":"controller_entrance_map_click","users":182,"count":435}]},"app.go":{"name":"app.go","fetchedAt":"2026-04-14T11:20:20.041Z","today":{"dau":60,"devices":72,"events":183},"yesterday":{"dau":45,"devices":54,"events":130},"month":{"dau":338,"devices":588,"events":250259},"weekTrend":[{"date":"20260408","dau":58,"events":194},{"date":"20260409","dau":59,"events":203},{"date":"20260410","dau":58,"events":213},{"date":"20260411","dau":53,"events":175},{"date":"20260412","dau":45,"events":130},{"date":"20260413","dau":60,"events":183}],"topEvents":[{"name":"screen_view","users":63,"count":2255},{"name":"user_engagement","users":61,"count":1366},{"name":"page_flow_tracker","users":61,"count":2167},{"name":"session_start","users":60,"count":183},{"name":"device_command_click","users":30,"count":223},{"name":"device_command_result","users":30,"count":280},{"name":"live_mode_start","users":21,"count":89},{"name":"splash_ad_skip","users":18,"count":69},{"name":"live_mode_end","users":17,"count":85},{"name":"notification_receive","users":15,"count":182},{"name":"notification_foreground","users":12,"count":72},{"name":"notification_open","users":11,"count":20},{"name":"health_detail_open","users":11,"count":32},{"name":"login_success","users":9,"count":9},{"name":"ota_upgrade_success","users":8,"count":8}]},"chatbot":{"name":"chatbot","fetchedAt":"2026-04-14T11:20:29.706Z","today":{"dau":17,"devices":0,"events":21},"yesterday":{"dau":21,"devices":0,"events":23},"month":{"dau":178,"devices":0,"events":1042},"weekTrend":[{"date":"20260408","dau":26,"events":27},{"date":"20260409","dau":43,"events":48},{"date":"20260410","dau":24,"events":26},{"date":"20260411","dau":36,"events":37},{"date":"20260412","dau":21,"events":23},{"date":"20260413","dau":17,"events":21}],"topEvents":[{"name":"session_start","users":17,"count":21},{"name":"page_view","users":17,"count":19},{"name":"first_visit","users":10,"count":10},{"name":"app_session_end","users":4,"count":5},{"name":"message_sent","users":1,"count":2},{"name":"message_completed","users":1,"count":2},{"name":"chat_prefill_entered","users":1,"count":1}]}}};
+const __DASHBOARD_DATA__ = {"updatedAt":"2026-04-14T12:10:38.103Z","dateLabel":"20260413","stl":{"kpi":{"today":{"dau":911,"sessions":2347},"yesterday":{"dau":871,"sessions":2322},"month":{"dau":2399,"sessions":55202}},"trend":[{"date":"20260408","dau":895,"sessions":2315},{"date":"20260409","dau":880,"sessions":2405},{"date":"20260410","dau":878,"sessions":2356},{"date":"20260411","dau":854,"sessions":2332},{"date":"20260412","dau":871,"sessions":2322},{"date":"20260413","dau":911,"sessions":2347}],"metrics":{"powersave_on":{"users":146,"count":311},"health_view":{"users":144,"count":1714},"map_snapshot":{"users":2197,"count":57217},"fence_breach":{"users":782,"count":9315},"device_add":{"users":141,"count":716},"powersave_off":{"users":121,"count":310},"device_add_fail":{"users":21,"count":240},"power_saving_toggle":{"users":142,"count":1057},"fence_secured":{"users":1415,"count":31107},"click_ai_chat":{"users":146,"count":237},"fence_add_success":{"users":489,"count":872}}},"go":{"kpi":{"today":{"dau":60,"sessions":183},"yesterday":{"dau":45,"sessions":130},"month":{"dau":261,"sessions":4552}},"trend":[{"date":"20260408","dau":58,"sessions":194},{"date":"20260409","dau":59,"sessions":203},{"date":"20260410","dau":58,"sessions":213},{"date":"20260411","dau":53,"sessions":175},{"date":"20260412","dau":45,"sessions":130},{"date":"20260413","dau":60,"sessions":183}],"metrics":{"splash_ad_click":{"users":28,"count":50},"health_view":{"users":41,"count":1151},"device_command":{"users":149,"count":7647},"splash_ad_skip":{"users":47,"count":611},"power_saving":{"users":71,"count":720},"live_mode":{"users":118,"count":1595},"add_device_click":{"users":107,"count":324},"add_device_fail":{"users":83,"count":321},"add_device_success":{"users":116,"count":156},"power_out_of_range":{"users":50,"count":390}}},"chatbot":{"kpi":{"today":{"dau":17,"sessions":21},"yesterday":{"dau":21,"sessions":23},"month":{"dau":178,"sessions":211}},"trend":[{"date":"20260408","dau":26,"sessions":27},{"date":"20260409","dau":43,"sessions":48},{"date":"20260410","dau":24,"sessions":26},{"date":"20260411","dau":36,"sessions":37},{"date":"20260412","dau":21,"sessions":23},{"date":"20260413","dau":17,"sessions":21}],"deep":{"feedback_dislike":{"users":0,"count":0},"feedback_like":{"users":0,"count":0},"entry_prefill":{"users":0,"count":0},"entry_direct":{"users":0,"count":0},"msg_completed":{"users":0,"count":0},"msg_sent":{"users":0,"count":0}},"msgTrend":[{"date":"20260408","sent":21,"completed":21,"activeUsers":6},{"date":"20260409","sent":82,"completed":81,"activeUsers":12},{"date":"20260410","sent":5,"completed":5,"activeUsers":5},{"date":"20260411","sent":19,"completed":19,"activeUsers":6},{"date":"20260412","sent":16,"completed":16,"activeUsers":3},{"date":"20260413","sent":2,"completed":2,"activeUsers":1}]}};
 
-const COLORS = {
-  'app.stl': '#4f8cff',
-  'app.go': '#34d399',
-  'chatbot': '#f59e0b'
-};
-const LABELS = {
-  'app.stl': 'App.stl (Pet Tracker)',
-  'app.go': 'App.go (Device)',
-  'chatbot': 'Chatbot'
-};
+// ========== 内嵌数据（由 build-ghp.cjs 注入） ==========
+// __DASHBOARD_DATA__ 会被替换为实际数据
 
-let trendChart = null;
-let monthChart = null;
+const C = { stl: '#4f8cff', go: '#34d399', cb: '#f59e0b' };
+const fmt = n => { if (n >= 1e6) return (n/1e6).toFixed(1)+'M'; if (n >= 1e3) return (n/1e3).toFixed(1)+'K'; return n?.toString() || '0'; };
+const pct = (a, b) => { if (!b) return '-'; const p = ((a-b)/b*100).toFixed(1); return (p>=0?'↑ ':'↓ ')+Math.abs(p)+'%'; };
+const pctCls = (a, b) => { if (!b) return ''; return a >= b ? 'up' : 'down'; };
+const fmtDate = d => d ? d.slice(4,6)+'/'+d.slice(6) : '';
 
-function fmt(n) {
-  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
-  return n.toString();
-}
+let charts = {};
 
-function pctChange(cur, prev) {
-  if (!prev || prev === 0) return { text: '-', cls: '' };
-  const p = ((cur - prev) / prev * 100).toFixed(1);
-  const cls = p >= 0 ? 'up' : 'down';
-  const arrow = p >= 0 ? '↑' : '↓';
-  return { text: `${arrow} ${Math.abs(p)}%`, cls };
-}
+function destroyCharts() { Object.values(charts).forEach(c => c?.destroy()); charts = {}; }
 
-function renderKPI(data) {
-  const container = document.getElementById('kpiRow');
-  const classes = { 'app.stl': 'stl', 'app.go': 'go', 'chatbot': 'cb' };
+function render(D) {
+  const app = document.getElementById('app');
+  const t = D.stl?.kpi?.today || {};
+  const ty = D.stl?.kpi?.yesterday || {};
+  const gt = D.go?.kpi?.today || {};
+  const gy = D.go?.kpi?.yesterday || {};
+  const ct = D.chatbot?.kpi?.today || {};
+  const cy = D.chatbot?.kpi?.yesterday || {};
+
   let html = '';
 
-  for (const [key, app] of Object.entries(data.apps)) {
-    const t = app.today || { dau: 0, devices: 0, events: 0 };
-    const y = app.yesterday || { dau: 0, devices: 0, events: 0 };
-    const m = app.month || { dau: 0, devices: 0, events: 0 };
-    const dauCh = pctChange(t.dau, y.dau);
-    const evtCh = pctChange(t.events, y.events);
+  // ===== Section 1: DAU KPIs =====
+  html += `<div class="section">
+    <div class="section-title">📊 Daily Active Users</div>
+    <div class="kpi-row">
+      ${kpiCard('App.stl', 'stl', C.stl, t.dau, ty.dau, t.sessions, ty.sessions, D.stl?.kpi?.month?.dau)}
+      ${kpiCard('App.go', 'go', C.go, gt.dau, gy.dau, gt.sessions, gy.sessions, D.go?.kpi?.month?.dau)}
+      ${kpiCard('Chatbot', 'cb', C.cb, ct.dau, cy.dau, ct.sessions, cy.sessions, D.chatbot?.kpi?.month?.dau)}
+    </div>
+    <div class="chart-row">
+      <div class="chart-card"><h3>DAU 7-Day Trend</h3><div class="chart-box"><canvas id="dauTrend"></canvas></div></div>
+      <div class="chart-card"><h3>30-Day Active Users</h3><div class="chart-box"><canvas id="monthBar"></canvas></div></div>
+    </div>
+  </div>`;
 
-    html += `
-    <div class="kpi-card ${classes[key]}">
-      <div class="app-name"><span class="dot"></span>${LABELS[key]}</div>
-      <div class="kpi-grid">
-        <div class="kpi-item">
-          <div class="label">DAU (Today)</div>
-          <div class="value">${fmt(t.dau)}</div>
-          <div class="change ${dauCh.cls}">${dauCh.text} vs yesterday</div>
-        </div>
-        <div class="kpi-item">
-          <div class="label">Sessions</div>
-          <div class="value">${fmt(t.events)}</div>
-          <div class="change ${evtCh.cls}">${evtCh.text}</div>
-        </div>
-        <div class="kpi-item wide">
-          <div class="label">30-Day Active Users</div>
-          <div class="value">${fmt(m.dau)}</div>
-        </div>
+  // ===== Section 2: Chatbot Deep Dive =====
+  const cd = D.chatbot?.deep || {};
+  const mt = D.chatbot?.msgTrend || [];
+  html += `<div class="section">
+    <div class="section-title">🤖 Chatbot Deep Dive <span class="badge">30D</span></div>
+    <div class="metrics-grid">
+      ${metricTile('msg_sent', 'Messages Sent', fmt(cd.msg_sent?.count), cd.msg_sent?.users+' users', 'cb')}
+      ${metricTile('msg_completed', 'AI Responses', fmt(cd.msg_completed?.count), cd.msg_completed?.users+' users', 'cb')}
+      ${metricTile('entry_direct', 'Direct Entry', fmt(cd.entry_direct?.count), 'user typed', 'cb')}
+      ${metricTile('entry_prefill', 'Prefill Entry', fmt(cd.entry_prefill?.count), 'suggested', 'cb')}
+      ${metricTile('feedback_like', '👍 Likes', fmt(cd.feedback_like?.count), 'positive', 'cb')}
+      ${metricTile('feedback_dislike', '👎 Dislikes', fmt(cd.feedback_dislike?.count), 'negative', 'cb')}
+    </div>
+    <div class="chart-row" style="margin-top:12px">
+      <div class="chart-card"><h3>Chatbot Message Trend (7D)</h3><div class="chart-box"><canvas id="cbMsgTrend"></canvas></div></div>
+      <div class="chart-card">
+        <h3>Entry Source Split</h3>
+        <div class="chart-box"><canvas id="cbEntryPie"></canvas></div>
       </div>
-    </div>`;
-  }
-  container.innerHTML = html;
+    </div>
+  </div>`;
+
+  // ===== Section 3: App.stl Key Behaviors =====
+  const sm = D.stl?.metrics || {};
+  html += `<div class="section">
+    <div class="section-title">🐾 App.stl Key Behaviors <span class="badge">30D</span></div>
+    <div class="metrics-grid">
+      ${metricTile('click_ai_chat', 'AI Chat Click', fmt(sm.click_ai_chat?.count), sm.click_ai_chat?.users+' users', 'stl')}
+      ${metricTile('device_add', 'Device Bound', fmt(sm.device_add?.count), sm.device_add?.users+' users', 'stl')}
+      ${metricTile('device_add_fail', 'Device Add Fail', fmt(sm.device_add_fail?.count), sm.device_add_fail?.users+' users', 'stl')}
+      ${metricTile('power_saving_toggle', 'Power Saving', fmt(sm.power_saving_toggle?.count), sm.power_saving_toggle?.users+' users', 'stl')}
+      ${metricTile('powersave_on', 'Powersave ON', fmt(sm.powersave_on?.count), sm.powersave_on?.users+' users', 'stl')}
+      ${metricTile('powersave_off', 'Powersave OFF', fmt(sm.powersave_off?.count), sm.powersave_off?.users+' users', 'stl')}
+      ${metricTile('fence_secured', 'Fence Secured', fmt(sm.fence_secured?.count), sm.fence_secured?.users+' users', 'stl')}
+      ${metricTile('fence_breach', 'Fence Breach', fmt(sm.fence_breach?.count), sm.fence_breach?.users+' users', 'stl')}
+      ${metricTile('fence_add_success', 'Fence Added', fmt(sm.fence_add_success?.count), sm.fence_add_success?.users+' users', 'stl')}
+      ${metricTile('health_view', 'Health Viewed', fmt(sm.health_view?.count), sm.health_view?.users+' users', 'stl')}
+      ${metricTile('map_snapshot', 'Map Snapshot', fmt(sm.map_snapshot?.count), sm.map_snapshot?.users+' users', 'stl')}
+    </div>
+    <div style="margin-top:12px">
+      ${funnel('Device Add', sm.device_add?.count||0, sm.device_add?.count||0, 'added', sm.device_add_fail?.count||0, 'failed')}
+    </div>
+  </div>`;
+
+  // ===== Section 4: App.go Key Behaviors =====
+  const gm = D.go?.metrics || {};
+  html += `<div class="section">
+    <div class="section-title">📡 App.go Key Behaviors <span class="badge">30D</span></div>
+    <div class="metrics-grid">
+      ${metricTile('device_command', 'Device Commands', fmt(gm.device_command?.count), gm.device_command?.users+' users', 'go')}
+      ${metricTile('live_mode', 'Live Mode', fmt(gm.live_mode?.count), gm.live_mode?.users+' users', 'go')}
+      ${metricTile('power_saving', 'Power Saving', fmt(gm.power_saving?.count), gm.power_saving?.users+' users', 'go')}
+      ${metricTile('power_out_of_range', 'OutOfRange Attempt', fmt(gm.power_out_of_range?.count), gm.power_out_of_range?.users+' users', 'go')}
+      ${metricTile('add_device_click', 'Add Device Click', fmt(gm.add_device_click?.count), gm.add_device_click?.users+' users', 'go')}
+      ${metricTile('add_device_success', 'Add Success', fmt(gm.add_device_success?.count), gm.add_device_success?.users+' users', 'go')}
+      ${metricTile('add_device_fail', 'Add Failed', fmt(gm.add_device_fail?.count), gm.add_device_fail?.users+' users', 'go')}
+      ${metricTile('health_view', 'Health Viewed', fmt(gm.health_view?.count), gm.health_view?.users+' users', 'go')}
+      ${metricTile('splash_ad_skip', 'Ad Skipped', fmt(gm.splash_ad_skip?.count), gm.splash_ad_skip?.users+' users', 'go')}
+      ${metricTile('splash_ad_click', 'Ad Clicked', fmt(gm.splash_ad_click?.count), gm.splash_ad_click?.users+' users', 'go')}
+    </div>
+    <div style="margin-top:12px">
+      ${funnel('Add Device', gm.add_device_click?.count||0, gm.add_device_success?.count||0, 'success', gm.add_device_fail?.count||0, 'failed')}
+    </div>
+  </div>`;
+
+  app.innerHTML = html;
+  destroyCharts();
+
+  // Draw charts
+  drawDAUTrend(D);
+  drawMonthBar(D);
+  drawCBMsgTrend(mt);
+  drawCBEntryPie(cd);
 }
 
-function renderTrendChart(data) {
-  const ctx = document.getElementById('trendChart').getContext('2d');
-  if (trendChart) trendChart.destroy();
+function kpiCard(label, cls, color, dau, dauY, sessions, sessY, monthDau) {
+  return `<div class="kpi-card">
+    <div class="app-label"><span class="dot" style="background:${color}"></span>${label}</div>
+    <div class="kpi-grid">
+      <div class="kpi-item"><div class="label">DAU</div><div class="value">${fmt(dau)}</div><div class="change ${pctCls(dau,dauY)}">${pct(dau,dauY)}</div></div>
+      <div class="kpi-item"><div class="label">Sessions</div><div class="value">${fmt(sessions)}</div><div class="change ${pctCls(sessions,sessY)}">${pct(sessions,sessY)}</div></div>
+      <div class="kpi-item"><div class="label">30D Active</div><div class="value">${fmt(monthDau)}</div></div>
+    </div>
+  </div>`;
+}
 
-  // Merge all dates
-  const allDates = new Set();
-  for (const app of Object.values(data.apps)) {
-    app.weekTrend.forEach(t => allDates.add(t.date));
-  }
+function metricTile(key, label, value, sub, cls) {
+  return `<div class="metric-tile ${cls}"><div class="m-label">${label}</div><div class="m-value">${value}</div><div class="m-sub">${sub}</div></div>`;
+}
+
+function funnel(title, total, success, sLabel, fail, fLabel) {
+  const sPct = total ? (success/total*100).toFixed(0) : 0;
+  const fPct = total ? (fail/total*100).toFixed(0) : 0;
+  return `<div class="funnel">
+    <div class="funnel-step"><div class="f-label">Started</div><div class="f-value">${total}</div></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-step" style="border-color:var(--green)"><div class="f-label">${sLabel}</div><div class="f-value">${success}</div><div class="funnel-pct">${sPct}%</div></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-step" style="border-color:var(--red)"><div class="f-label">${fLabel}</div><div class="f-value">${fail}</div><div class="funnel-pct">${fPct}%</div></div>
+  </div>`;
+}
+
+function chartOpts(extra = {}) {
+  return { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#8b8fa3', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(255,255,255,0.04)' } } }, ...extra };
+}
+
+function drawDAUTrend(D) {
+  const ctx = document.getElementById('dauTrend')?.getContext('2d'); if (!ctx) return;
+  const allDates = new Set(); 
+  [D.stl?.trend, D.go?.trend, D.chatbot?.trend].forEach(t => t?.forEach(r => allDates.add(r.date)));
   const dates = [...allDates].sort();
-
-  const datasets = [];
-  for (const [key, app] of Object.entries(data.apps)) {
-    const trendMap = {};
-    app.weekTrend.forEach(t => { trendMap[t.date] = t.dau; });
-    datasets.push({
-      label: LABELS[key],
-      data: dates.map(d => trendMap[d] || 0),
-      borderColor: COLORS[key],
-      backgroundColor: COLORS[key] + '20',
-      tension: 0.3,
-      fill: true,
-      pointRadius: 3,
-      borderWidth: 2
-    });
-  }
-
-  trendChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: dates.map(d => d.slice(4, 6) + '/' + d.slice(6)),
-      datasets
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#8b8fa3', font: { size: 11 } } } },
-      scales: {
-        x: { ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(255,255,255,0.04)' } }
-      }
-    }
-  });
+  const makeDS = (trend, label, color) => {
+    const m = {}; trend?.forEach(r => m[r.date] = r.dau);
+    return { label, data: dates.map(d => m[d]||0), borderColor: color, backgroundColor: color+'20', tension: 0.3, fill: true, pointRadius: 2, borderWidth: 2 };
+  };
+  charts.dauTrend = new Chart(ctx, { type: 'line', data: { labels: dates.map(fmtDate), datasets: [makeDS(D.stl?.trend,'App.stl',C.stl), makeDS(D.go?.trend,'App.go',C.go), makeDS(D.chatbot?.trend,'Chatbot',C.cb)] }, options: chartOpts() });
 }
 
-function renderMonthChart(data) {
-  const ctx = document.getElementById('monthChart').getContext('2d');
-  if (monthChart) monthChart.destroy();
-
-  const keys = Object.keys(data.apps);
-  monthChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: keys.map(k => LABELS[k]),
-      datasets: [{
-        label: '30-Day Active Users',
-        data: keys.map(k => (data.apps[k].month || {}).dau || 0),
-        backgroundColor: keys.map(k => COLORS[k] + '80'),
-        borderColor: keys.map(k => COLORS[k]),
-        borderWidth: 1,
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color: '#8b8fa3', font: { size: 12 } }, grid: { display: false } }
-      }
-    }
-  });
+function drawMonthBar(D) {
+  const ctx = document.getElementById('monthBar')?.getContext('2d'); if (!ctx) return;
+  const keys = ['stl','go','chatbot'], labels = ['App.stl','App.go','Chatbot'], colors = [C.stl, C.go, C.cb];
+  charts.monthBar = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ data: keys.map(k => D[k]?.kpi?.month?.dau||0), backgroundColor: colors.map(c=>c+'80'), borderColor: colors, borderWidth: 1, borderRadius: 6 }] }, options: chartOpts({ indexAxis: 'y', plugins: { legend: { display: false } } }) });
 }
 
-function renderEvents(data) {
-  const container = document.getElementById('eventsRow');
-  const classes = { 'app.stl': 'stl', 'app.go': 'go', 'chatbot': 'cb' };
-  const barClasses = { 'app.stl': 'stl-bar', 'app.go': 'go-bar', 'chatbot': 'cb-bar' };
-  let html = '';
+function drawCBMsgTrend(mt) {
+  const ctx = document.getElementById('cbMsgTrend')?.getContext('2d'); if (!ctx || !mt.length) return;
+  charts.cbMsgTrend = new Chart(ctx, { type: 'bar', data: { labels: mt.map(r=>fmtDate(r.date)), datasets: [
+    { label: 'Sent', data: mt.map(r=>r.sent), backgroundColor: C.cb+'80', borderColor: C.cb, borderWidth: 1, borderRadius: 4 },
+    { label: 'Completed', data: mt.map(r=>r.completed), backgroundColor: C.stl+'80', borderColor: C.stl, borderWidth: 1, borderRadius: 4 }
+  ] }, options: chartOpts() });
+}
 
-  for (const [key, app] of Object.entries(data.apps)) {
-    const maxUsers = app.topEvents.length > 0 ? app.topEvents[0].users : 1;
-    html += `
-    <div class="events-card">
-      <h3><span class="dot" style="background:${COLORS[key]}"></span>${LABELS[key]} Top Events</h3>
-      ${app.topEvents.map(e => `
-        <div class="event-row">
-          <span class="name" title="${e.name}">${e.name}</span>
-          <span class="users">${fmt(e.users)}</span>
-        </div>
-        <div class="event-bar ${barClasses[key]}" style="width:${(e.users/maxUsers*100)}%"></div>
-      `).join('')}
-    </div>`;
-  }
-  container.innerHTML = html;
+function drawCBEntryPie(cd) {
+  const ctx = document.getElementById('cbEntryPie')?.getContext('2d'); if (!ctx) return;
+  const direct = cd.entry_direct?.count || 0, prefill = cd.entry_prefill?.count || 0;
+  charts.cbEntry = new Chart(ctx, { type: 'doughnut', data: { labels: ['Direct','Prefill'], datasets: [{ data: [direct, prefill], backgroundColor: [C.cb+'cc', C.purple+'cc'], borderColor: [C.cb, C.purple], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#8b8fa3' } } } } });
 }
 
 async function loadData() {
   document.getElementById('updateTime').textContent = 'Loading...';
-  const dot = document.getElementById('statusDot');
-  dot.className = 'status-dot ok';
-
   try {
-    // 使用内嵌数据（无需 fetch，支持纯静态部署）
+    // 内嵌数据（由 build-ghp.cjs 注入）
     const data = __DASHBOARD_DATA__;
-
-    if (data.error) {
-      dot.className = 'status-dot err';
-      document.getElementById('updateTime').textContent = 'Error: ' + data.error;
-      return;
-    }
-
-    const updatedAt = new Date(data.updatedAt);
-    document.getElementById('updateTime').textContent =
-      'Updated: ' + updatedAt.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-
-    renderKPI(data);
-    renderTrendChart(data);
-    renderMonthChart(data);
-    renderEvents(data);
-
+    if (data.error) { document.getElementById('updateTime').textContent = 'Error: ' + data.error; return; }
+    const d = new Date(data.updatedAt);
+    document.getElementById('updateTime').textContent = d.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+    render(data);
   } catch (err) {
-    dot.className = 'status-dot err';
-    document.getElementById('updateTime').textContent = 'Failed to load data';
+    document.getElementById('updateTime').textContent = 'Load failed';
     console.error(err);
   }
 }
 
 loadData();
-// 每5分钟自动刷新数据（不重新查 BigQuery，只刷新前端读取 JSON）
 setInterval(loadData, 5 * 60 * 1000);
 </script>
-
 </body>
 </html>
