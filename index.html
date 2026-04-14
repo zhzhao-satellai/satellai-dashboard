@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SatellAI Analytics Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d29;
+      --border: #2a2d3a;
+      --text: #e4e6eb;
+      --text2: #8b8fa3;
+      --accent-stl: #4f8cff;
+      --accent-go: #34d399;
+      --accent-cb: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .header h1 span { color: var(--accent-stl); }
+    .meta {
+      font-size: 13px;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+    .status-dot.ok { background: var(--green); }
+    .status-dot.err { background: var(--red); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* KPI Cards */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .kpi-card .app-name {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .kpi-card .app-name .dot {
+      width: 10px; height: 10px; border-radius: 3px;
+    }
+    .kpi-card.stl .dot { background: var(--accent-stl); }
+    .kpi-card.go .dot { background: var(--accent-go); }
+    .kpi-card.cb .dot { background: var(--accent-cb); }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .kpi-item {
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .kpi-item .label {
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 4px;
+    }
+    .kpi-item .value {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-item .change {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .kpi-item .change.up { color: var(--green); }
+    .kpi-item .change.down { color: var(--red); }
+    .kpi-item.wide { grid-column: span 2; }
+
+    /* Charts Row */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .chart-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .chart-container {
+      position: relative;
+      height: 260px;
+    }
+
+    /* Top Events */
+    .events-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .events-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .events-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .events-card h3 .dot {
+      width: 8px; height: 8px; border-radius: 3px;
+    }
+    .event-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+    }
+    .event-row:last-child { border-bottom: none; }
+    .event-row .name {
+      color: var(--text2);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .event-row .users {
+      color: var(--text);
+      font-weight: 600;
+      margin-left: 12px;
+      min-width: 50px;
+      text-align: right;
+    }
+    .event-bar {
+      height: 4px;
+      border-radius: 2px;
+      margin-top: 2px;
+      opacity: 0.4;
+    }
+    .stl-bar { background: var(--accent-stl); }
+    .go-bar { background: var(--accent-go); }
+    .cb-bar { background: var(--accent-cb); }
+
+    /* Error state */
+    .error-msg {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 8px;
+      padding: 16px;
+      color: #fca5a5;
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .kpi-row { grid-template-columns: 1fr; }
+      .charts-row { grid-template-columns: 1fr; }
+      .events-row { grid-template-columns: 1fr; }
+    }
+
+    /* Refresh button */
+    .refresh-btn {
+      background: rgba(79,140,255,0.15);
+      color: var(--accent-stl);
+      border: 1px solid rgba(79,140,255,0.3);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover {
+      background: rgba(79,140,255,0.25);
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>SatellAI</span> Analytics Dashboard</h1>
+  <div class="meta">
+    <span class="status-dot ok" id="statusDot"></span>
+    <span id="updateTime">Loading...</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- Charts -->
+<div class="charts-row">
+  <div class="chart-card">
+    <h3>DAU Trend (7 Days)</h3>
+    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h3>Monthly Overview</h3>
+    <div class="chart-container"><canvas id="monthChart"></canvas></div>
+  </div>
+</div>
+
+<!-- Top Events -->
+<div class="events-row" id="eventsRow"></div>
+
+<script>
+// 内嵌看板数据（由 build-ghp.cjs 自动生成）
+const __DASHBOARD_DATA__ = {"updatedAt":"2026-04-14T09:21:36.754Z","dateLabel":"20260413","apps":{"app.stl":{"name":"app.stl","fetchedAt":"2026-04-14T09:21:19.972Z","today":{"dau":911,"devices":1071,"events":2347},"yesterday":{"dau":871,"devices":1027,"events":2322},"month":{"dau":2493,"devices":3839,"events":2393298},"weekTrend":[{"date":"20260408","dau":895,"events":2315},{"date":"20260409","dau":880,"events":2405},{"date":"20260410","dau":878,"events":2356},{"date":"20260411","dau":854,"events":2332},{"date":"20260412","dau":871,"events":2322},{"date":"20260413","dau":911,"events":2347}],"topEvents":[{"name":"user_engagement","users":918,"count":12341},{"name":"screen_view","users":918,"count":16748},{"name":"session_start","users":911,"count":2347},{"name":"app_entry","users":901,"count":7323},{"name":"page_stay","users":898,"count":21305},{"name":"map_snapshot","users":855,"count":2350},{"name":"fu_error","users":607,"count":2243},{"name":"notification_receive","users":344,"count":3576},{"name":"notification_dismiss","users":297,"count":2592},{"name":"bottom_command","users":294,"count":2484},{"name":"fence_secured","users":266,"count":1644},{"name":"notification_foreground","users":233,"count":1352},{"name":"device_network_unline","users":194,"count":5829},{"name":"remote_control","users":186,"count":450},{"name":"controller_entrance_map_click","users":182,"count":435}]},"app.go":{"name":"app.go","fetchedAt":"2026-04-14T09:21:29.229Z","today":{"dau":60,"devices":72,"events":183},"yesterday":{"dau":45,"devices":54,"events":130},"month":{"dau":338,"devices":588,"events":250259},"weekTrend":[{"date":"20260408","dau":58,"events":194},{"date":"20260409","dau":59,"events":203},{"date":"20260410","dau":58,"events":213},{"date":"20260411","dau":53,"events":175},{"date":"20260412","dau":45,"events":130},{"date":"20260413","dau":60,"events":183}],"topEvents":[{"name":"screen_view","users":63,"count":2255},{"name":"user_engagement","users":61,"count":1366},{"name":"page_flow_tracker","users":61,"count":2167},{"name":"session_start","users":60,"count":183},{"name":"device_command_click","users":30,"count":223},{"name":"device_command_result","users":30,"count":280},{"name":"live_mode_start","users":21,"count":89},{"name":"splash_ad_skip","users":18,"count":69},{"name":"live_mode_end","users":17,"count":85},{"name":"notification_receive","users":15,"count":182},{"name":"notification_foreground","users":12,"count":72},{"name":"notification_open","users":11,"count":20},{"name":"health_detail_open","users":11,"count":32},{"name":"login_success","users":9,"count":9},{"name":"ota_upgrade_success","users":8,"count":8}]},"chatbot":{"name":"chatbot","fetchedAt":"2026-04-14T09:21:36.754Z","today":{"dau":17,"devices":0,"events":21},"yesterday":{"dau":21,"devices":0,"events":23},"month":{"dau":178,"devices":0,"events":1042},"weekTrend":[{"date":"20260408","dau":26,"events":27},{"date":"20260409","dau":43,"events":48},{"date":"20260410","dau":24,"events":26},{"date":"20260411","dau":36,"events":37},{"date":"20260412","dau":21,"events":23},{"date":"20260413","dau":17,"events":21}],"topEvents":[{"name":"session_start","users":17,"count":21},{"name":"page_view","users":17,"count":19},{"name":"first_visit","users":10,"count":10},{"name":"app_session_end","users":4,"count":5},{"name":"message_sent","users":1,"count":2},{"name":"message_completed","users":1,"count":2},{"name":"chat_prefill_entered","users":1,"count":1}]}}};
+
+const COLORS = {
+  'app.stl': '#4f8cff',
+  'app.go': '#34d399',
+  'chatbot': '#f59e0b'
+};
+const LABELS = {
+  'app.stl': 'App.stl (Pet Tracker)',
+  'app.go': 'App.go (Device)',
+  'chatbot': 'Chatbot'
+};
+
+let trendChart = null;
+let monthChart = null;
+
+function fmt(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n.toString();
+}
+
+function pctChange(cur, prev) {
+  if (!prev || prev === 0) return { text: '-', cls: '' };
+  const p = ((cur - prev) / prev * 100).toFixed(1);
+  const cls = p >= 0 ? 'up' : 'down';
+  const arrow = p >= 0 ? '↑' : '↓';
+  return { text: `${arrow} ${Math.abs(p)}%`, cls };
+}
+
+function renderKPI(data) {
+  const container = document.getElementById('kpiRow');
+  const classes = { 'app.stl': 'stl', 'app.go': 'go', 'chatbot': 'cb' };
+  let html = '';
+
+  for (const [key, app] of Object.entries(data.apps)) {
+    const t = app.today || { dau: 0, devices: 0, events: 0 };
+    const y = app.yesterday || { dau: 0, devices: 0, events: 0 };
+    const m = app.month || { dau: 0, devices: 0, events: 0 };
+    const dauCh = pctChange(t.dau, y.dau);
+    const evtCh = pctChange(t.events, y.events);
+
+    html += `
+    <div class="kpi-card ${classes[key]}">
+      <div class="app-name"><span class="dot"></span>${LABELS[key]}</div>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <div class="label">DAU (Today)</div>
+          <div class="value">${fmt(t.dau)}</div>
+          <div class="change ${dauCh.cls}">${dauCh.text} vs yesterday</div>
+        </div>
+        <div class="kpi-item">
+          <div class="label">Sessions</div>
+          <div class="value">${fmt(t.events)}</div>
+          <div class="change ${evtCh.cls}">${evtCh.text}</div>
+        </div>
+        <div class="kpi-item wide">
+          <div class="label">30-Day Active Users</div>
+          <div class="value">${fmt(m.dau)}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function renderTrendChart(data) {
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (trendChart) trendChart.destroy();
+
+  // Merge all dates
+  const allDates = new Set();
+  for (const app of Object.values(data.apps)) {
+    app.weekTrend.forEach(t => allDates.add(t.date));
+  }
+  const dates = [...allDates].sort();
+
+  const datasets = [];
+  for (const [key, app] of Object.entries(data.apps)) {
+    const trendMap = {};
+    app.weekTrend.forEach(t => { trendMap[t.date] = t.dau; });
+    datasets.push({
+      label: LABELS[key],
+      data: dates.map(d => trendMap[d] || 0),
+      borderColor: COLORS[key],
+      backgroundColor: COLORS[key] + '20',
+      tension: 0.3,
+      fill: true,
+      pointRadius: 3,
+      borderWidth: 2
+    });
+  }
+
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates.map(d => d.slice(4, 6) + '/' + d.slice(6)),
+      datasets
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#8b8fa3', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+}
+
+function renderMonthChart(data) {
+  const ctx = document.getElementById('monthChart').getContext('2d');
+  if (monthChart) monthChart.destroy();
+
+  const keys = Object.keys(data.apps);
+  monthChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: keys.map(k => LABELS[k]),
+      datasets: [{
+        label: '30-Day Active Users',
+        data: keys.map(k => (data.apps[k].month || {}).dau || 0),
+        backgroundColor: keys.map(k => COLORS[k] + '80'),
+        borderColor: keys.map(k => COLORS[k]),
+        borderWidth: 1,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#8b8fa3' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#8b8fa3', font: { size: 12 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderEvents(data) {
+  const container = document.getElementById('eventsRow');
+  const classes = { 'app.stl': 'stl', 'app.go': 'go', 'chatbot': 'cb' };
+  const barClasses = { 'app.stl': 'stl-bar', 'app.go': 'go-bar', 'chatbot': 'cb-bar' };
+  let html = '';
+
+  for (const [key, app] of Object.entries(data.apps)) {
+    const maxUsers = app.topEvents.length > 0 ? app.topEvents[0].users : 1;
+    html += `
+    <div class="events-card">
+      <h3><span class="dot" style="background:${COLORS[key]}"></span>${LABELS[key]} Top Events</h3>
+      ${app.topEvents.map(e => `
+        <div class="event-row">
+          <span class="name" title="${e.name}">${e.name}</span>
+          <span class="users">${fmt(e.users)}</span>
+        </div>
+        <div class="event-bar ${barClasses[key]}" style="width:${(e.users/maxUsers*100)}%"></div>
+      `).join('')}
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+async function loadData() {
+  document.getElementById('updateTime').textContent = 'Loading...';
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot ok';
+
+  try {
+    // 使用内嵌数据（无需 fetch，支持纯静态部署）
+    const data = __DASHBOARD_DATA__;
+
+    if (data.error) {
+      dot.className = 'status-dot err';
+      document.getElementById('updateTime').textContent = 'Error: ' + data.error;
+      return;
+    }
+
+    const updatedAt = new Date(data.updatedAt);
+    document.getElementById('updateTime').textContent =
+      'Updated: ' + updatedAt.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+
+    renderKPI(data);
+    renderTrendChart(data);
+    renderMonthChart(data);
+    renderEvents(data);
+
+  } catch (err) {
+    dot.className = 'status-dot err';
+    document.getElementById('updateTime').textContent = 'Failed to load data';
+    console.error(err);
+  }
+}
+
+loadData();
+// 每5分钟自动刷新数据（不重新查 BigQuery，只刷新前端读取 JSON）
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+
+</body>
+</html>
